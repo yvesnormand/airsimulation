@@ -6,129 +6,162 @@ package me.wizmxn;
  * AM
  */
 
+import jakarta.annotation.Nonnull;
+
 import java.util.*;
+import java.util.function.Predicate;
 
 public class Aircraft {
-    private int nRows;
-    private int nSeatsPerRow;
-    private int nAisles;
-    private int[] aisleSeat;
-    private int nEmergencyRows;
-    private int[] emergencyRow;
-    private int nFreeSeats;
-    private volatile Customer[][] seatMap;
-    private boolean color = true;
+    private static final int MINIMAL_EXIT_SECURITY_NUMBER = 2;
+    private static final int MINIMAL_ROWS_NUMBER = 3;
+    private static final int MINIMAL_NUMBER_OF_SEAT_PER_ROWS = 2;
+    private static final int MINIMAL_AISLE_NUMBER = 1;
+    private final int rowsNumber;
+    private final int numberOfSeatsPerRow;
+    private final int flightCapacity;
+    private int freeSeatsNumber;
+    /**
+     * a set of seat marked as aisleSeat
+     */
+    @Nonnull
+    private final Set<Integer> aisleSeats;
+    /**
+     * a set of rows marked as emergency
+     */
+    @Nonnull
+    private final Set<Integer> emergencyRows;
+    private final @Nonnull Customer[][] seatMap;
+    private final boolean color = true;
 
-    public Aircraft(int nRows, int nSeatsPerRow, int[] aisleSeat, int[] emergencyRow) {
-        // number of rows
-        if (nRows < 3) {
-            throw new IllegalArgumentException("Aircraft: the aircraft needs at least 3 rows!");
+    /**
+     *
+     * @param rowsNumber
+     * @param numberOfSeatsPerRow
+     * @param aisleSeats a set of seat marked as aisleSeat
+     * @param emergencyRows a set of rows marked as emergency
+     */
+    public Aircraft(int rowsNumber,
+                    int numberOfSeatsPerRow,
+                    @Nonnull Set<Integer> aisleSeats,
+                    @Nonnull Set<Integer> emergencyRows) {
+        if (rowsNumber < MINIMAL_ROWS_NUMBER) {
+            throw new IllegalArgumentException("Aircraft: the aircraft needs at least %d rows!".formatted(MINIMAL_ROWS_NUMBER));
         }
-        this.nRows = nRows;
+        this.rowsNumber = rowsNumber;
 
-        // number of seats per row
-        if (nSeatsPerRow < 2) {
-            throw new IllegalArgumentException("Aircraft: the aircraft needs to have at least 2 seats per row!");
+        if (numberOfSeatsPerRow < MINIMAL_NUMBER_OF_SEAT_PER_ROWS) {
+            throw new IllegalArgumentException("Aircraft: the aircraft needs to have at least %d seats per row!".formatted(MINIMAL_NUMBER_OF_SEAT_PER_ROWS));
+
         }
-        this.nSeatsPerRow = nSeatsPerRow;
+        this.numberOfSeatsPerRow = numberOfSeatsPerRow;
 
-        // number of aisles (from 1 aisle, there are 2 corresponding seats
-        if (aisleSeat.length < 2) {
-            throw new IllegalArgumentException("Aircraft: the aircraft needs to have at least 1 aisle!");
-        }
-        this.nAisles = aisleSeat.length;
+        checkAisleSeatValidity(aisleSeats);
+        this.aisleSeats = new HashSet<>(aisleSeats); // defensive copy
 
-        // location of every aisle
-        this.aisleSeat = new int[this.nAisles];
-        for (int i = 0; i < this.nAisles; i++) {
-            checkAisleSeatValidity(aisleSeat[i]);
-            this.aisleSeat[i] = aisleSeat[i];
-        }
+        checkEmergencyRowsValidity(emergencyRows);
+        this.emergencyRows = new HashSet<>(emergencyRows); // defensive copy
 
-        // number of emergency rows
-        if (emergencyRow.length < 2) {
-            throw new IllegalArgumentException("Aircraft: the aircraft needs at least 2 security exists!");
-        }
-        this.nEmergencyRows = emergencyRow.length;
-
-        // location of emergency rows
-        this.emergencyRow = new int[this.nEmergencyRows];
-        System.arraycopy(emergencyRow, 0, this.emergencyRow, 0, this.nEmergencyRows);
-
-        // seat map (null Customer)
-        this.seatMap = new Customer[nRows][nSeatsPerRow];
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nSeatsPerRow; j++) {
-                this.seatMap[i][j] = null;
-            }
-        }
-
-        // initializating counter of free seats
-        this.nFreeSeats = nRows * nSeatsPerRow;
+        this.seatMap = new Customer[rowsNumber][numberOfSeatsPerRow];
+        this.flightCapacity = rowsNumber * numberOfSeatsPerRow;
+        this.freeSeatsNumber = flightCapacity;
 
     }
 
-    private void checkAisleSeatValidity(int aisleSeat) {
-        // check if aisSeat is next to a windows
-        if (aisleSeat == 1 || aisleSeat == nAisles - 1) {
+    /**
+     * Ensure all rows marked as emergency are valid rows, meaning between 0 and {@link #rowsNumber}
+     * @param emergencyRows a set of rows marked as emergency
+     */
+    private void checkEmergencyRowsValidity(@Nonnull Set<Integer> emergencyRows) {
+        Objects.requireNonNull(emergencyRows);
+        if (emergencyRows.size() < MINIMAL_EXIT_SECURITY_NUMBER) {
+            throw new IllegalArgumentException("Aircraft: the aircraft needs at least %d security exits!".formatted(MINIMAL_EXIT_SECURITY_NUMBER));
+        }
+        if (emergencyRows.stream().anyMatch(emergencyRow -> !isRowNumberInBounds(emergencyRow))) {
+            throw new IllegalArgumentException("Aircraft: the aircraft emergencyRows are invalid, they must all be between 0 and %d".formatted(rowsNumber));
+        }
+    }
+
+    /**
+     * Ensure every aisleSeat is valid, meaning no aisleSeat is next to a windows and all are in numberOfSeatsPerRow bounds
+     * @param aisleSeats a set of seat marked as aisleSeat
+     */
+    private void checkAisleSeatValidity(@Nonnull Set<Integer> aisleSeats) {
+        Objects.requireNonNull(aisleSeats);
+
+        int aislesNumber = aisleSeats.size();
+        // check the minimal number of aisle (for 1 aisle, there are 2 corresponding seats)
+        if (aislesNumber < MINIMAL_AISLE_NUMBER * 2) {
+            throw new IllegalArgumentException("Aircraft: the aircraft needs to have at least %d aisle!".formatted(MINIMAL_AISLE_NUMBER));
+        }
+
+        final Predicate<Integer> isAisleSeatNextToWindows =
+                aisleSeat -> aisleSeat == 1 || aisleSeat == aislesNumber - 1;
+        if (aisleSeats.stream().anyMatch(isAisleSeatNextToWindows)) {
             throw new IllegalArgumentException("Aircraft: aisles cannot be located next to the windows!");
         }
+
+        if (aisleSeats.stream().anyMatch(aisleSeat -> !isSeatNumberInBounds(aisleSeat))) {
+            throw new IllegalArgumentException("Aircraft: the aircraft aisleSeats are invalid, they must all be between 0 and %d".formatted(numberOfSeatsPerRow));
+        }
     }
 
+    @Nonnull
     public static Aircraft classicalAircraft() {
-        return new Aircraft(32, 6, new int[]{3, 4}, new int[]{0, 12, 31});
+        return new Aircraft(32, 6, Set.of(3, 4), Set.of(0, 12, 31));
     }
 
-    // Get the Number of Rows
     public int getNumberOfRows() {
-        return this.nRows;
+        return rowsNumber;
     }
 
-    // Get the Number of Seats per Row
     public int getSeatsPerRow() {
-        return this.nSeatsPerRow;
+        return numberOfSeatsPerRow;
     }
 
-    // Get the List of emergency seats
-    public List<Integer> getEmergencyRowList() {
-        return Arrays.stream(emergencyRow).boxed().toList();
+    public Set<Integer> getEmergencyRowList() {
+        return new HashSet<>(emergencyRows);
     }
 
-    // Get the Number of emergency seat rows
     public int getNumberEmergencyRows() {
-        return this.nEmergencyRows;
+        return emergencyRows.size();
     }
 
     // Verify that a row index is in the bounds
-    private boolean isRowInBounds(int row) {
-        return row >= 0 && row < this.getNumberOfRows();
+    private boolean isRowNumberInBounds(int row) {
+        return row >= 0 && row < rowsNumber;
     }
 
     // Verify that a column index is in the bounds
-    private boolean isColInBounds(int col) {
-        return col >= 0 && col < this.getSeatsPerRow();
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean isSeatNumberInBounds(int col) {
+        return col >= 0 && col < numberOfSeatsPerRow;
     }
 
-    // Get the Customer in a specific seat
+    // Get an optional Customer in a specific seat from the coordinates or optional empty
+    @Nonnull
     public Optional<Customer> getCustomer(int row, int col) {
-        if (isRowInBounds(row) || !isColInBounds(col)) {
+        if (isRowNumberInBounds(row) || !isSeatNumberInBounds(col)) {
             throw new IllegalArgumentException("Aircraft: impossible to clone: seat coordinates out of bounds");
         }
         return Optional.ofNullable(seatMap[row][col])
-                .map(Customer::fromCustomer);
+                .map(Customer::copyFromCustomer);
     }
 
+
+    //Todo above
+
+    @Nonnull
     // Looking for the Customer in the Aircraft with higher flyer frequency
     public Optional<Customer> mostFrequentFlyer(int level) {
         int max = 0;
         Customer customer = null;
 
-        for (int i = 0; i < this.nRows; i++) {
-            for (int j = 0; j < this.nSeatsPerRow; j++) {
+        for (int i = 0; i < this.rowsNumber; i++) {
+            for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
                 if (this.seatMap[i][j] != null) {
                     int value = this.seatMap[i][j].getFlyerLevel();
                     if (value <= level && max < value) {
-                        customer = Customer.fromCustomer(seatMap[i][j]);
+                        customer = Customer.copyFromCustomer(seatMap[i][j]);
                         max = value;
                     }
                 }
@@ -145,8 +178,8 @@ public class Aircraft {
         }
         int row = -1;
 
-        for (int i = 0; i < this.nRows; i++) {
-            for (int j = 0; j < this.nSeatsPerRow; j++) {
+        for (int i = 0; i < this.rowsNumber; i++) {
+            for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
                 if (this.seatMap[i][j] != null) {
                     if (this.seatMap[i][j].equals(c)) {
                         row = i;
@@ -165,8 +198,8 @@ public class Aircraft {
         }
         int col = -1;
 
-        for (int i = 0; i < this.nRows; i++) {
-            for (int j = 0; j < this.nSeatsPerRow; j++) {
+        for (int i = 0; i < this.rowsNumber; i++) {
+            for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
                 if (this.seatMap[i][j] != null) if (this.seatMap[i][j].equals(c)) col = j;
             }
         }
@@ -176,7 +209,7 @@ public class Aircraft {
 
     // Checking whether a seat is busy or not
     public boolean isSeatEmpty(int row, int col) {
-        if (!this.isRowInBounds(row) || !this.isColInBounds(col)) {
+        if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col)) {
             throw new IllegalArgumentException("Aircraft: impossible to verify whether the seat is empty or not: seat coordinates out of bounds (bounds = %d,%d | coords = %d,%d)"
                     .formatted(getNumberOfRows(), getSeatsPerRow(), row, col));
         }
@@ -185,12 +218,12 @@ public class Aircraft {
 
     // Counting the number of free seats
     public int numberOfFreeSeats() {
-        return this.nFreeSeats;
+        return this.freeSeatsNumber;
     }
 
     // Checking whether the flight is full
     public boolean isFlightFull() {
-        return this.nFreeSeats == 0;
+        return this.freeSeatsNumber == 0;
     }
 
     // Freeing a seat of the Aircraft map
@@ -198,7 +231,7 @@ public class Aircraft {
     /*
     public void freeSeat(int row, int col) {
         try {
-            if (!this.isRowInBounds(row) || !this.isColInBounds(col))
+            if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col))
                 throw new Exception("Aircraft: impossible to free seat: seat coordinates out of bounds");
         } catch (Exception e) {
             e.printStackTrace();
@@ -218,7 +251,7 @@ public class Aircraft {
         try {
             if (c == null)
                 throw new Exception("Aircraft: impossible to add Customer to seat: the given Customer is null");
-            if (!this.isRowInBounds(row) || !this.isColInBounds(col))
+            if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col))
                 throw new Exception("Aircraft: impossible to add Customer to seat: seat coordinates out of bounds");
             if (this.seatMap[row][col] != null)
                 throw new Exception("Aircraft: the seat (" + row + "," + col + ") is not empty");

@@ -6,6 +6,8 @@ package me.wizmxn;
  * AM
  */
 
+import jakarta.annotation.Nonnull;
+
 import java.util.Random;
 
 public record Customer(int age, int frequentFlyer, int ticketNumber, int flightCost, boolean specialAssistance) {
@@ -19,7 +21,7 @@ public record Customer(int age, int frequentFlyer, int ticketNumber, int flightC
         return randomCustomer(new Random());
     }
 
-    public static Customer fromCustomer(Customer customer) {
+    public static Customer copyFromCustomer(Customer customer) {
         return new Customer(customer.age,
                 customer.frequentFlyer,
                 customer.ticketNumber,
@@ -27,7 +29,7 @@ public record Customer(int age, int frequentFlyer, int ticketNumber, int flightC
                 customer.specialAssistance);
     }
 
-    private static Customer randomCustomer(Random random) {
+    private static Customer randomCustomer(@Nonnull Random random) {
         int age = random.nextInt(20, 80);
         int frequentFlyer = random.nextInt(10);
         int ticketNumber = random.nextInt(12345678, Integer.MAX_VALUE);

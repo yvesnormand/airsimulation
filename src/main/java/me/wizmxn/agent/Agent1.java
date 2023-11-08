@@ -1,15 +1,18 @@
 package me.wizmxn.agent;
 
+import jakarta.annotation.Nonnull;
 import me.wizmxn.Aircraft;
 import me.wizmxn.Customer;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Agent1 extends Agent {
+    @Nonnull
     private final Random random;
 
-    public Agent1(Aircraft aircraft) {
+    public Agent1(@Nonnull Aircraft aircraft) {
         super(aircraft);
         random = new Random();
     }
@@ -17,7 +20,7 @@ public class Agent1 extends Agent {
     @Override
     public void executeCode() {
         boolean placed = false;
-        ArrayList<Integer> emergRows = this.aircraft.getEmergencyRowList();
+        List<Integer> emergencyRows = this.aircraft.getEmergencyRowList();
         Customer c = Customer.randomCustomer();
 
         // randomly pick a seat
@@ -28,7 +31,7 @@ public class Agent1 extends Agent {
             // verifying whether the seat is free
             if (this.aircraft.isSeatEmpty(row, col)) {
                 // if this is an emergency exit seat, and c is over60, then we skip
-                if (!emergRows.contains(row) || !c.isOver60() || this.aircraft.numberOfFreeSeats() <= this.aircraft.getSeatsPerRow() * this.aircraft.getNumberEmergencyRows()) {
+                if (!emergencyRows.contains(row) || !c.isOver60() || this.aircraft.numberOfFreeSeats() <= this.aircraft.getSeatsPerRow() * this.aircraft.getNumberEmergencyRows()) {
                     this.aircraft.add(c, row, col);
                     placed = true;
                 }
