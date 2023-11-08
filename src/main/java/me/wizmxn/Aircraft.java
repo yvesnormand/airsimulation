@@ -31,7 +31,7 @@ public class Aircraft {
     @Nonnull
     private final Set<Integer> emergencyRows;
     private final @Nonnull Customer[][] seatMap;
-    private final boolean color = true;
+    private boolean color = true;
 
     /**
      *
@@ -147,23 +147,21 @@ public class Aircraft {
                 .map(Customer::copyFromCustomer);
     }
 
-
-    //Todo above
-
     @Nonnull
-    // Looking for the Customer in the Aircraft with higher flyer frequency
-    public Optional<Customer> mostFrequentFlyer(int level) {
-        int max = 0;
+    // Looking for the Customer in the Aircraft with higher flyer frequency under a given flyerLevelLimit
+    public Optional<Customer> getMostFrequentFlyer(int flyerLevelLimit) {
+        int maxFlyerLevel = 0;
         Customer customer = null;
 
         for (int i = 0; i < this.rowsNumber; i++) {
             for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
-                if (this.seatMap[i][j] != null) {
-                    int value = this.seatMap[i][j].getFlyerLevel();
-                    if (value <= level && max < value) {
-                        customer = Customer.copyFromCustomer(seatMap[i][j]);
-                        max = value;
-                    }
+                if (this.seatMap[i][j] == null) {
+                    continue;
+                }
+                int currentFlyerLevel = this.seatMap[i][j].getFlyerLevel();
+                if (currentFlyerLevel <= flyerLevelLimit && maxFlyerLevel < currentFlyerLevel) {
+                    customer = Customer.copyFromCustomer(seatMap[i][j]);
+                    maxFlyerLevel = currentFlyerLevel;
                 }
             }
         }
@@ -172,53 +170,45 @@ public class Aircraft {
     }
 
     // Get the Row Number of a given Customer
-    public int getRowNumber(Customer c) {
-        if (c == null) {
-            return -1;
-        }
-        int row = -1;
-
+    public OptionalInt getCustomerRowNumber(@Nonnull Customer c) {
+        //noinspection DuplicatedCode
         for (int i = 0; i < this.rowsNumber; i++) {
             for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
-                if (this.seatMap[i][j] != null) {
-                    if (this.seatMap[i][j].equals(c)) {
-                        row = i;
-                    }
+                if (this.seatMap[i][j] != null
+                    && this.seatMap[i][j].equals(c)) {
+                    return OptionalInt.of(i);
                 }
             }
         }
 
-        return row;
+        return OptionalInt.empty();
     }
 
     // Get the Seat Number in the Row of a given Customer
-    public int getSeatNumberInTheRow(Customer c) {
-        if (c == null) {
-            return -1;
-        }
-        int col = -1;
-
+    public OptionalInt getCustomerSeatPlaceInRowRange(@Nonnull Customer c) {
+        //noinspection DuplicatedCode
         for (int i = 0; i < this.rowsNumber; i++) {
             for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
-                if (this.seatMap[i][j] != null) if (this.seatMap[i][j].equals(c)) col = j;
+                if (this.seatMap[i][j] != null
+                    && this.seatMap[i][j].equals(c)) {
+                    return OptionalInt.of(j);
+                }
             }
         }
-
-        return col;
+        return OptionalInt.empty();
     }
 
-    // Checking whether a seat is busy or not
     public boolean isSeatEmpty(int row, int col) {
-        if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col)) {
-            throw new IllegalArgumentException("Aircraft: impossible to verify whether the seat is empty or not: seat coordinates out of bounds (bounds = %d,%d | coords = %d,%d)"
-                    .formatted(getNumberOfRows(), getSeatsPerRow(), row, col));
-        }
+        checkOrThrowSeatCoordinate(row, col);
         return this.seatMap[row][col] == null;
     }
 
-    // Counting the number of free seats
     public int numberOfFreeSeats() {
         return this.freeSeatsNumber;
+    }
+
+    public int getFlightCapacity() {
+        return flightCapacity;
     }
 
     // Checking whether the flight is full
@@ -226,72 +216,67 @@ public class Aircraft {
         return this.freeSeatsNumber == 0;
     }
 
-    // Freeing a seat of the Aircraft map
-    //todo
-    /*
+    private void checkOrThrowSeatCoordinate(int row, int col) {
+        if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col)) {
+            throw new IllegalArgumentException("Aircraft: impossible to verify whether the seat is empty or not: seat coordinates out of bounds (bounds = %d,%d | coords = %d,%d)"
+                    .formatted(getNumberOfRows(), getSeatsPerRow(), row, col));
+        }
+    }
+
     public void freeSeat(int row, int col) {
-        try {
-            if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col))
-                throw new Exception("Aircraft: impossible to free seat: seat coordinates out of bounds");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+        checkOrThrowSeatCoordinate(row, col);
+        if (this.seatMap[row][col] == null) {
+            return;
         }
 
-        if (this.seatMap[row][col] != null) {
-            synchronized (this) {
-                this.nFreeSeats++;
-            }
+        synchronized (this) {
+            this.freeSeatsNumber++;
         }
         this.seatMap[row][col] = null;
     }
 
-    // Placing a Customer in a given Aircraft seat
-    public void add(Customer c, int row, int col) {
-        try {
-            if (c == null)
-                throw new Exception("Aircraft: impossible to add Customer to seat: the given Customer is null");
-            if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col))
-                throw new Exception("Aircraft: impossible to add Customer to seat: seat coordinates out of bounds");
-            if (this.seatMap[row][col] != null)
-                throw new Exception("Aircraft: the seat (" + row + "," + col + ") is not empty");
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+    /**
+     *
+     * Placing a Customer in a given Aircraft seat
+     * @return the number of freeSeat remaining
+     */
+    public int placeCustomerToSeat(@Nonnull Customer customer, int row, int col) {
+        Objects.requireNonNull(customer);
+        checkOrThrowSeatCoordinate(row, col);
+        if (!isSeatEmpty(row, col)) {
+            throw new RuntimeException("Aircraft: the seat (%d,%d) is not empty (%s)".formatted(row, col, customer));
         }
-
-        this.seatMap[row][col] = (Customer) c.clone();
+        this.seatMap[row][col] = Customer.copyFromCustomer(customer);
         synchronized (this) {
-            this.nFreeSeats--;
+            this.freeSeatsNumber--;
         }
+        return this.freeSeatsNumber;
     }
 
-    // Resetting an empty Aircraft
-    public void reset() {
-        for (int i = 0; i < this.nRows; i++) {
-            for (int j = 0; j < this.nSeatsPerRow; j++) {
-                this.seatMap[i][j] = null;
-            }
+    public Aircraft clearAllCustomer() {
+        for (Customer[] customers : seatMap) {
+            Arrays.fill(customers, null);
         }
-        this.nFreeSeats = this.nRows * this.nSeatsPerRow;
+        this.freeSeatsNumber = flightCapacity;
+        return this;
     }
 
     // Switch off colors in toString (for an incompatibility with the color system)
-    public void switchoffColors() {
+    public void toggleColorOff() {
         this.color = false;
     }
 
     // Clean screen
     // (creates a String that make the cursor point at the beginning of the last output from toString)
     public String cleanString() {
-        String print = "";
+        final StringBuilder print = new StringBuilder();
         if (this.color) {
-            for (int i = 0; i < 4 + this.getSeatsPerRow() + this.nAisles / 2; i++) print = print + "\033[F";
-            print = print + "\r";
+            print.append("\033[F".repeat(Math.max(0, 4 + this.getSeatsPerRow() + this.aisleSeats.size() / 2)));
+            print.append("\r");
         }
-        return print;
+        return print.toString();
     }
-
+    /*
     // Printing
     public String toString() {
         int exit = 0;

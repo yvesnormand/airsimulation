@@ -4,7 +4,6 @@ import jakarta.annotation.Nonnull;
 import me.wizmxn.Aircraft;
 import me.wizmxn.Customer;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -32,7 +31,7 @@ public class Agent1 extends Agent {
             if (this.aircraft.isSeatEmpty(row, col)) {
                 // if this is an emergency exit seat, and c is over60, then we skip
                 if (!emergencyRows.contains(row) || !c.isOver60() || this.aircraft.numberOfFreeSeats() <= this.aircraft.getSeatsPerRow() * this.aircraft.getNumberEmergencyRows()) {
-                    this.aircraft.add(c, row, col);
+                    this.aircraft.placeCustomerToSeat(c, row, col);
                     placed = true;
                 }
             }

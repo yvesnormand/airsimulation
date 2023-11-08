@@ -27,7 +27,7 @@ public class Agent2 extends Agent{
                 if (this.aircraft.isSeatEmpty(row, col)) {
                     // if this is an emergency exit seat, and c needs assistence, then we skip
                     if (!emergRows.contains(row) || !c.isNeedingAssistance() || this.aircraft.numberOfFreeSeats() <= this.aircraft.getSeatsPerRow() * this.aircraft.getNumberEmergencyRows()) {
-                        this.aircraft.add(c, row, col);
+                        this.aircraft.placeCustomerToSeat(c, row, col);
                         placed = true;
                     }
                 }

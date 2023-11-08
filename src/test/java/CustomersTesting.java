@@ -17,7 +17,7 @@ class CustomersTesting {
         Customer c4 = (Customer) c2.clone();
         System.out.println("Testing 'clone' and 'equals' : " + c2.equals(c4));
         c4.reset();
-        System.out.println("Testing 'reset' : " + c4.equals(new Customer()));
+        System.out.println("Testing 'clearAllCustomer' : " + c4.equals(new Customer()));
         System.out.println();
     }
 }
