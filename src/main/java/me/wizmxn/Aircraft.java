@@ -139,11 +139,9 @@ public class Aircraft {
 
     // Get an optional Customer in a specific seat from the coordinates or optional empty
     @Nonnull
-    public Optional<Customer> getCustomer(int row, int col) {
-        if (isRowNumberInBounds(row) || !isSeatNumberInBounds(col)) {
-            throw new IllegalArgumentException("Aircraft: impossible to clone: seat coordinates out of bounds");
-        }
-        return Optional.ofNullable(seatMap[row][col])
+    public Optional<Customer> getCustomer(int rowIndex, int columnIndex) {
+        checkOrThrowSeatCoordinate(rowIndex, columnIndex);
+        return Optional.ofNullable(seatMap[rowIndex][columnIndex])
                 .map(Customer::copyFromCustomer);
     }
 

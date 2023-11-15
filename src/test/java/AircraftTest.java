@@ -6,8 +6,12 @@ import java.util.OptionalInt;
 import java.util.Set;
 
 class AircraftTest {
+    public static void main(String[] args) {
+        AircraftTest aircraftTest = new AircraftTest();
+        aircraftTest.execute();
+    }
 
-    void main() {
+    void execute() {
         {
             System.out.println("Testing Aircraft class\n");
             Aircraft a = Aircraft.classicalAircraft();

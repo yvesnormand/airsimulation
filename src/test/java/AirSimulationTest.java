@@ -2,7 +2,7 @@
 //
 //public class AirSimulationTest {
 //
-//    void main() {
+//    void execute() {
 //        System.out.println("\n** Sequential execution **\n");
 //        if (args != null && args.length > 0 && args[0] != null && args[0].equals("animation")) {
 //            AirSimulation s = new AirSimulation();

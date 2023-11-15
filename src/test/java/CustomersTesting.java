@@ -3,7 +3,7 @@
 //class CustomersTesting {
 //
 //
-//    void main() {
+//    void execute() {
 //        System.out.println("Testing Customer Class\n");
 //        Customer c1 = new Customer(20, 1, 100, 1000, true);
 //        System.out.println("Customer with specified attributes:\n" + c1);
