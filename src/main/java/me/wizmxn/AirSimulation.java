@@ -7,35 +7,26 @@ package me.wizmxn;
  */
 
 import me.wizmxn.agent.Agent;
-import me.wizmxn.agent.Agent2;
 import me.wizmxn.agent.factory.AgentFactory;
-import me.wizmxn.agent.factory.ReflectionAgentFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.ArrayList;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class AirSimulation {
     public final static int AGENT_NUMBER = 4;
     private final Aircraft aircraft;
     private final List<Agent> agents;
-    private final Map<Agent, Integer> agentWithCodeExecutionCounter;
 
     // Constructor
     public AirSimulation(AgentFactory agentFactory) {
-        this.aircraft = new Aircraft();  // standard model
+        this.aircraft = Aircraft.classicalAircraft();  // standard model
         this.agents = agentFactory.getAgent(aircraft);
-        this.agentWithCodeExecutionCounter = agents.stream()
-                .map(agent -> Map.entry(agent, 0))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
     }
 
     // Reference to Aircraft
-    public Aircraft getAircraftRef() {
+    public Aircraft getAirCraft() {
         return this.aircraft;
     }
 
@@ -54,10 +45,15 @@ public class AirSimulation {
     @Override
     public String toString() {
         return "AirSimulation{" +
-                "aircraft=" + aircraft +
-                ", agentWithCodeExecutionCounter=" + agentWithCodeExecutionCounter +
-                '}';
+               "aircraft=" + aircraft +
+               ", agentWithCodeExecutionCounter=" + getAgentWithCodeExecutionCounter() +
+               '}';
     }
 
+    private Map<Agent, Integer> getAgentWithCodeExecutionCounter() {
+        return agents.stream()
+                .map(agent -> Map.entry(agent, agent.getNumberOfExecution()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
 }
 

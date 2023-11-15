@@ -118,7 +118,7 @@ public class Aircraft {
         return numberOfSeatsPerRow;
     }
 
-    public Set<Integer> getEmergencyRowList() {
+    public Set<Integer> getEmergencyRows() {
         return new HashSet<>(emergencyRows);
     }
 
@@ -276,64 +276,58 @@ public class Aircraft {
         }
         return print.toString();
     }
-    /*
-    // Printing
+
+    //     Printing
     public String toString() {
-        int exit = 0;
-        String print = "";
+        StringBuilder print = new StringBuilder();
 
-        for (int i = 0; i < this.nRows; i++) {
-            if (this.emergencyRow[exit] == i) {
-                print = print + "-|";
-                if (exit < this.nEmergencyRows - 1) exit++;
+        for (int rowNumber = 0; rowNumber < this.rowsNumber; rowNumber++) {
+            if (emergencyRows.contains(rowNumber)) {
+                print.append("-|");
             } else {
-                print = print + "--";
+                print.append("--");
             }
         }
-        print = print + "-\n";
+        print.append("-\n");
 
-        int aisle = 0;
-        for (int j = 0; j < this.nSeatsPerRow; j++) {
-            if (aisle < this.nAisles - 1) {
-                if (this.aisleSeat[aisle] == j && this.aisleSeat[aisle + 1] == j + 1) {
-                    for (int k = 0; k < this.nRows; k++) print = print + "--";
-                    print = print + "-\n";
-                    aisle = aisle + 2;
-                }
+        for (int j = 0; j < this.numberOfSeatsPerRow; j++) {
+            if (aisleSeats.contains(j) && aisleSeats.contains(j + 1)) {
+                print.append("--".repeat(Math.max(0, this.rowsNumber)));
+                print.append("-\n");
             }
 
-            for (int i = 0; i < this.nRows; i++) {
+            for (int i = 0; i < this.rowsNumber; i++) {
                 if (this.seatMap[i][j] == null) {
-                    print = print + " \033[1mx\033[0m";
-                } else {
-                    if (this.color) {
-                        if (this.seatMap[i][j].isNeedingAssistance())
-                            print = print + " \033[31;1m" + this.seatMap[i][j].getFlyerLevel() + "\033[0m";
-                        else if (this.seatMap[i][j].isOver60())
-                            print = print + " \033[33;1m" + this.seatMap[i][j].getFlyerLevel() + "\033[0m";
-                        else
-                            print = print + " \033[32;1m" + this.seatMap[i][j].getFlyerLevel() + "\033[0m";
-                    } else {
-                        print = print + " " + this.seatMap[i][j].getFlyerLevel();
-                    }
+                    print.append(" \033[1mx\033[0m");
+                    continue;
                 }
+                if (!this.color) {
+                    print.append(" ").append(this.seatMap[i][j].getFlyerLevel());
+                    continue;
+                }
+                if (this.seatMap[i][j].specialAssistance()) {
+                    print.append(" \033[31;1m").append(this.seatMap[i][j].getFlyerLevel()).append("\033[0m");
+                } else if (this.seatMap[i][j].isOver60()) {
+                    print.append(" \033[33;1m").append(this.seatMap[i][j].getFlyerLevel()).append("\033[0m");
+                } else {
+                    print.append(" \033[32;1m").append(this.seatMap[i][j].getFlyerLevel()).append("\033[0m");
+                }
+
             }
-            print = print + "\n";
+            print.append("\n");
         }
 
-        exit = 0;
-        for (int i = 0; i < this.nRows; i++) {
-            if (this.emergencyRow[exit] == i) {
-                print = print + "-|";
-                if (exit < this.nEmergencyRows - 1) exit++;
+        for (int rowNumber = 0; rowNumber < this.rowsNumber; rowNumber++) {
+            if (emergencyRows.contains(rowNumber)) {
+                print.append("-|");
             } else {
-                print = print + "--";
+                print.append("--");
             }
         }
-        print = print + "-\n";
+        print.append("-\n");
 
-        return print;
-    } */
+        return print.toString();
+    }
 
 
 }
