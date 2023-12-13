@@ -13,6 +13,7 @@ public class Agent3 extends Agent {
     @Override
     public int executeCodeImpl() {
         //todo
+        logExecuteCodeEnding();
         return numberOfExecution;
     }
 }

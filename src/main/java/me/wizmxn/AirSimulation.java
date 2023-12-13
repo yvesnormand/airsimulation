@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AirSimulation {
-    public final static int AGENT_NUMBER = 4;
     private final Aircraft aircraft;
     private final List<Agent> agents;
 
@@ -22,7 +21,6 @@ public class AirSimulation {
     public AirSimulation(AgentFactory agentFactory) {
         this.aircraft = Aircraft.classicalAircraft();  // standard model
         this.agents = agentFactory.getAgent(aircraft);
-
     }
 
     // Reference to Aircraft

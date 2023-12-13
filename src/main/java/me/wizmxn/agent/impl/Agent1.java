@@ -21,25 +21,27 @@ public class Agent1 extends Agent {
     @Override
     public int executeCodeImpl() {
         boolean placed = false;
-        Set<Integer> emergencyRows = this.aircraft.getEmergencyRows();
+        final Set<Integer> emergencyRows = this.aircraft.getEmergencyRows();
+
         Customer customer = Customer.randomCustomer(); // create a random customer
 
         // randomly pick a seat
         do {
-            int row = random.nextInt(this.aircraft.getNumberOfRows());
-            int col = random.nextInt(this.aircraft.getSeatsPerRow());
+            int rowIndex = random.nextInt(aircraft.getNumberOfRows());
+            int columnIndex = random.nextInt(aircraft.getSeatsPerRow());
 
             // verifying whether the seat is free, if not continue to seek for an empty seat
-            if (aircraft.isSeatEmpty(row, col)) {
+            if (!aircraft.isSeatEmpty(rowIndex, columnIndex)) {
                 continue;
             }
             // if this is an emergency exit seat, and customer is over60, then we skip
-            if (emergencyRows.contains(row) && customer.isOver60() &&
+            if (aircraft.isEmergencyRow(rowIndex) &&
+                customer.isOver60() &&
                 aircraft.numberOfFreeSeats() > aircraft.getSeatsPerRow() * aircraft.getNumberEmergencyRows()) {
                 continue;
             }
 
-            this.aircraft.placeCustomerToSeat(customer, row, col);
+            aircraft.placeCustomerToSeat(customer, rowIndex, columnIndex);
             placed = true;
         } while (!placed && !this.aircraft.isFlightFull());
 
@@ -47,7 +49,31 @@ public class Agent1 extends Agent {
         if (placed) {
             this.numberOfExecution++;
         }
+
+        logExecuteCodeEnding();
         return numberOfExecution;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        Agent1 agent1 = (Agent1) o;
+        return random.equals(agent1.random);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + random.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        // ignoring the random
+        return super.toString();
+    }
 }

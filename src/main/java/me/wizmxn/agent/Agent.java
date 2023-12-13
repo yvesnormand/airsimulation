@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 public abstract class Agent {
-    private final static Logger LOGGER = Logger.getLogger(Agent.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(Agent.class.getName());
     @Nonnull
     protected final Aircraft aircraft;
     protected final int agentNumber;
@@ -16,7 +16,7 @@ public abstract class Agent {
      */
     protected int numberOfExecution;
 
-    public Agent(@Nonnull Aircraft aircraft, int agentNumber) {
+    protected Agent(@Nonnull Aircraft aircraft, int agentNumber) {
         this.aircraft = Objects.requireNonNull(aircraft);
         this.agentNumber = agentNumber;
     }
@@ -29,7 +29,13 @@ public abstract class Agent {
         LOGGER.fine(() -> "Agent%d started to execute his code (%d execution before)".formatted(agentNumber, numberOfExecution));
         return executeCodeImpl();
     }
+
     protected abstract int executeCodeImpl();
+
+    protected final void logExecuteCodeEnding() {
+        LOGGER.fine(() -> "Agent%d finished to execute his code (%d execution before)".formatted(agentNumber, numberOfExecution));
+    }
+
     public final int getNumberOfExecution() {
         return numberOfExecution;
     }

@@ -18,7 +18,6 @@ public class ReflectionAgentFactory implements AgentFactory {
     @Nonnull
     @Override
     public List<Agent> getAgent(@Nonnull Aircraft aircraft) {
-        //Todo load agent trought reflection
         Set<Class<? extends Agent>> allClassesUsingClassLoader = findAllClassesUsingReflectionsLibrary("me.wizmxn.agent.impl");
         List<Agent> agentList = allClassesUsingClassLoader.stream()
                 .map(aClass -> {
@@ -27,6 +26,7 @@ public class ReflectionAgentFactory implements AgentFactory {
                     } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                              InvocationTargetException e) {
                         throw new RuntimeException(e);
+                        
                     }
                 }).toList();
         LOGGER.info(() -> "Loaded %d agents, %s".formatted(agentList.size(), agentList));

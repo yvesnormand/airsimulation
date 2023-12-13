@@ -31,7 +31,7 @@ public class Agent2 extends Agent {
                     continue;
                 }
                 // if this is an emergency exit seat, and customer needs assistence, then we skip
-                if (emergencyRowList.contains(rowIndex) &&
+                if (aircraft.isEmergencyRow(rowIndex) &&
                     customer.specialAssistance() &&
                     this.aircraft.numberOfFreeSeats() > this.aircraft.getSeatsPerRow() * this.aircraft.getNumberEmergencyRows()) {
                     continue;
@@ -47,6 +47,8 @@ public class Agent2 extends Agent {
         if (placed) {
             this.numberOfExecution++;
         }
+
+        logExecuteCodeEnding();
         return numberOfExecution;
     }
 }

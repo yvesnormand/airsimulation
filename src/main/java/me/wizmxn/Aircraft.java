@@ -7,8 +7,11 @@ package me.wizmxn;
  */
 
 import jakarta.annotation.Nonnull;
+import me.wizmxn.exception.AircraftSeatNotEmptyException;
+import me.wizmxn.exception.IllegalSeatCoordinate;
 
 import java.util.*;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 
 public class Aircraft {
@@ -56,10 +59,10 @@ public class Aircraft {
         this.numberOfSeatsPerRow = numberOfSeatsPerRow;
 
         checkAisleSeatValidity(aisleSeats);
-        this.aisleSeats = new HashSet<>(aisleSeats); // defensive copy
+        this.aisleSeats = Set.copyOf(aisleSeats); // defensive copy
 
         checkEmergencyRowsValidity(emergencyRows);
-        this.emergencyRows = new HashSet<>(emergencyRows); // defensive copy
+        this.emergencyRows = Set.copyOf(emergencyRows); // immutable defensive copy
 
         this.seatMap = new Customer[rowsNumber][numberOfSeatsPerRow];
         this.flightCapacity = rowsNumber * numberOfSeatsPerRow;
@@ -216,8 +219,7 @@ public class Aircraft {
 
     private void checkOrThrowSeatCoordinate(int row, int col) {
         if (!this.isRowNumberInBounds(row) || !this.isSeatNumberInBounds(col)) {
-            throw new IllegalArgumentException("Aircraft: impossible to verify whether the seat is empty or not: seat coordinates out of bounds (bounds = %d,%d | coords = %d,%d)"
-                    .formatted(getNumberOfRows(), getSeatsPerRow(), row, col));
+            throw new IllegalSeatCoordinate(getNumberOfRows(), getSeatsPerRow(), row, col);
         }
     }
 
@@ -237,12 +239,15 @@ public class Aircraft {
      *
      * Placing a Customer in a given Aircraft seat
      * @return the number of freeSeat remaining
+     * @throws AircraftSeatNotEmptyException if the seat we are trying to fill is not empty
      */
+    @SuppressWarnings("UnusedReturnValue")
     public int placeCustomerToSeat(@Nonnull Customer customer, int row, int col) {
         Objects.requireNonNull(customer);
         checkOrThrowSeatCoordinate(row, col);
         if (!isSeatEmpty(row, col)) {
-            throw new RuntimeException("Aircraft: the seat (%d,%d) is not empty (%s)".formatted(row, col, customer));
+//            System.out.println(getCustomer(row, col));
+            throw new AircraftSeatNotEmptyException(row, col, customer);
         }
         this.seatMap[row][col] = Customer.copyFromCustomer(customer);
         synchronized (this) {
@@ -251,6 +256,7 @@ public class Aircraft {
         return this.freeSeatsNumber;
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public Aircraft clearAllCustomer() {
         for (Customer[] customers : seatMap) {
             Arrays.fill(customers, null);
@@ -276,6 +282,7 @@ public class Aircraft {
     }
 
     //     Printing
+    @Override
     public String toString() {
         StringBuilder print = new StringBuilder();
 
@@ -328,5 +335,9 @@ public class Aircraft {
     }
 
 
+    public boolean isEmergencyRow(int row) {
+        final IntPredicate isEmergencyRow = emergencyRows::contains;
+        return isEmergencyRow.test(row);
+    }
 }
 
