@@ -92,4 +92,14 @@ public class Main {
             return detail;
         }
     }
+
+
+    private static void setLoggerLevel() {
+        //you should avoid doing this in real application
+        //
+        Logger rootLog = Logger.getLogger("");
+        rootLog.setLevel(LOGGER_LEVEL);
+        rootLog.getHandlers()[0].setLevel(LOGGER_LEVEL);
+        rootLog.setFilter(r -> r.getSourceClassName().startsWith("me.yves"));
+    }
 }
