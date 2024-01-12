@@ -1,4 +1,4 @@
-import me.wizmxn.Customer;
+import me.yves.Customer;
 
 class CustomersTesting {
 

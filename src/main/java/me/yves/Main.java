@@ -1,6 +1,6 @@
-package me.wizmxn;
+package me.yves;
 
-import me.wizmxn.agent.factory.ReflectionAgentFactory;
+import me.yves.agent.factory.ReflectionAgentFactory;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -10,14 +10,13 @@ import java.util.stream.Collectors;
 
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    /**
+     * Logging level of the application, feel free to lower it for more details!
+     */
+    private static final Level LOGGER_LEVEL = Level.INFO;
 
     static {
-        //you should avoid doing this in real application
-        //
-        Logger rootLog = Logger.getLogger("");
-        rootLog.setLevel(Level.FINE);
-        rootLog.getHandlers()[0].setLevel(Level.FINE);
-        rootLog.setFilter(r -> r.getSourceClassName().startsWith("me.wizmxn"));
+        setLoggerLevel(); // ignore this, just setting at initialization LOGGER_LEVEL for the application logging level
     }
 
     public static void main(String[] args) throws InterruptedException {
@@ -27,12 +26,13 @@ public class Main {
 
         LOGGER.fine("\n** Sequential execution **\n");
         EXECUTION_MODE executionMode = getExecutionMode();
-        long startCurrentMs = System.currentTimeMillis(); // normally to benchmark you should avoid using this but rather use JMH
+        // please note that normally to benchmark you should avoid using techniques like currentMs but rather use JMH
+        long startCurrentMs = System.currentTimeMillis();
         long sleepTimeMs = 0;
         while (!airCraft.isFlightFull()) {
             airSimulation.executeAllAgentCode();
             if (executionMode == EXECUTION_MODE.ANIMATION) {
-                LOGGER.fine(airSimulation::toString);
+                LOGGER.info(airCraft::toString);
                 //noinspection BusyWait
                 Thread.sleep(100);
                 sleepTimeMs++;
@@ -82,5 +82,15 @@ public class Main {
                     .map(executionMode -> "   * " + executionMode.name() + " " + executionMode.ordinal() + " (" + executionMode.getDetail() + ")")
                     .collect(Collectors.joining("\n", "{\n", "\n}"));
         }
+    }
+
+
+    private static void setLoggerLevel() {
+        //you should avoid doing this in real application
+        //
+        Logger rootLog = Logger.getLogger("");
+        rootLog.setLevel(LOGGER_LEVEL);
+        rootLog.getHandlers()[0].setLevel(LOGGER_LEVEL);
+        rootLog.setFilter(r -> r.getSourceClassName().startsWith("me.yves"));
     }
 }

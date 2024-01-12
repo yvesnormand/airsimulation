@@ -1,7 +1,7 @@
-package me.wizmxn.agent.impl;
+package me.yves.agent.impl;
 
-import me.wizmxn.Aircraft;
-import me.wizmxn.agent.Agent;
+import me.yves.Aircraft;
+import me.yves.agent.Agent;
 
 public class Agent4 extends Agent {
     private static final int AGENT_NUMBER = 4;

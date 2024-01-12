@@ -1,12 +1,11 @@
-package me.wizmxn.agent.impl;
+package me.yves.agent.impl;
 
 import jakarta.annotation.Nonnull;
-import me.wizmxn.Aircraft;
-import me.wizmxn.Customer;
-import me.wizmxn.agent.Agent;
+import me.yves.Aircraft;
+import me.yves.Customer;
+import me.yves.agent.Agent;
 
 import java.util.Random;
-import java.util.Set;
 
 public class Agent1 extends Agent {
     private static final int AGENT_NUMBER = 1;
@@ -21,33 +20,32 @@ public class Agent1 extends Agent {
     @Override
     public int executeCodeImpl() {
         boolean placed = false;
-        final Set<Integer> emergencyRows = this.aircraft.getEmergencyRows();
-
         Customer customer = Customer.randomCustomer(); // create a random customer
 
         // randomly pick a seat
         do {
-            int rowIndex = random.nextInt(aircraft.getNumberOfRows());
-            int columnIndex = random.nextInt(aircraft.getSeatsPerRow());
+            int row = random.nextInt(aircraft.getNumberOfRows());
+            int col = random.nextInt(aircraft.getSeatsPerRow());
 
             // verifying whether the seat is free, if not continue to seek for an empty seat
-            if (!aircraft.isSeatEmpty(rowIndex, columnIndex)) {
+            if (!aircraft.isSeatEmpty(row, col)) {
                 continue;
             }
             // if this is an emergency exit seat, and customer is over60, then we skip
-            if (aircraft.isEmergencyRow(rowIndex) &&
+            if (aircraft.isEmergencyRow(row) &&
                 customer.isOver60() &&
                 aircraft.numberOfFreeSeats() > aircraft.getSeatsPerRow() * aircraft.getNumberEmergencyRows()) {
                 continue;
             }
 
-            aircraft.placeCustomerToSeat(customer, rowIndex, columnIndex);
+            aircraft.placeCustomerToSeat(customer, row, col);
+
             placed = true;
-        } while (!placed && !this.aircraft.isFlightFull());
+        } while (!placed && !aircraft.isFlightFull());
 
         // updating counter
         if (placed) {
-            this.numberOfExecution++;
+            numberOfExecution++;
         }
 
         logExecuteCodeEnding();

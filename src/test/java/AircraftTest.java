@@ -1,5 +1,5 @@
-import me.wizmxn.Aircraft;
-import me.wizmxn.Customer;
+import me.yves.Aircraft;
+import me.yves.Customer;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -41,7 +41,6 @@ class AircraftTest {
             System.out.println("Test 'getMostFrequentFlyer' : " + (Optional.ofNullable(mff).equals(a.getMostFrequentFlyer(10))));
             C = a.getCustomer(1, 1).orElse(null);
             System.out.println("Test 'getCustomerRowNumber' : " + (Optional.ofNullable(C).map(a::getCustomerRowNumber).map(op -> op.equals(OptionalInt.of(1)))));
-            System.out.println("Test 'getCustomerSeatPlaceInRowRange' : " + (Optional.ofNullable(C).map(a::getCustomerSeatPlaceInRowRange).map(op -> op.equals(OptionalInt.of(1)))));
             System.out.println("Test 'isSeatEmpty' : " + !a.isSeatEmpty(1, 1));
             a.freeSeat(1, 1);
             System.out.println("Test 'freeSeat' and 'isSeatEmpty' : " + a.isSeatEmpty(1, 1));

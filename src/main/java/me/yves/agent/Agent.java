@@ -1,7 +1,7 @@
-package me.wizmxn.agent;
+package me.yves.agent;
 
 import jakarta.annotation.Nonnull;
-import me.wizmxn.Aircraft;
+import me.yves.Aircraft;
 
 import java.util.Objects;
 import java.util.logging.Logger;
@@ -23,7 +23,7 @@ public abstract class Agent {
 
     /**
      * Execute the agent code, then return the current numberOfExecution of the code
-     * @return an int representing the number of code execution after the execution of this code
+     * @return an int representing the number of code executions after the execution of this code
      */
     public final int executeCode() {
         LOGGER.fine(() -> "Agent%d started to execute his code (%d execution before)".formatted(agentNumber, numberOfExecution));

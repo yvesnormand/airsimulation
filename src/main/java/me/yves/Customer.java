@@ -1,4 +1,4 @@
-package me.wizmxn;
+package me.yves;
 /* Customer class
  *
  * TP of SE (version 2020)
@@ -46,12 +46,16 @@ public record Customer(int age, int frequentFlyer, int ticketNumber, int flightC
     @Override
     public String toString() {
         return "Customer{" +
-                "age=" + age +
-                ", frequentFlyer=" + frequentFlyer +
-                ", ticketNumber=" + ticketNumber +
-                ", flightCost=" + flightCost +
-                ", specialAssistance=" + specialAssistance +
-                '}';
+               "age=" + age +
+               ", frequentFlyer=" + frequentFlyer +
+               ", ticketNumber=" + ticketNumber +
+               ", flightCost=" + flightCost +
+               ", specialAssistance=" + specialAssistance +
+               '}';
+    }
+
+    public String simpleToString() {
+        return "(%d,%d,%d,%d,%b)".formatted(age,frequentFlyer,ticketNumber,flightCost,specialAssistance);
     }
 
     public int getFlyerLevel() {

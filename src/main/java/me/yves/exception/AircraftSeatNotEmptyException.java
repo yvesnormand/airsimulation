@@ -1,6 +1,6 @@
-package me.wizmxn.exception;
+package me.yves.exception;
 
-import me.wizmxn.Customer;
+import me.yves.Customer;
 
 import java.util.Objects;
 

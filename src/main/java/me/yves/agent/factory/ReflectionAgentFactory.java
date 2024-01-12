@@ -1,8 +1,8 @@
-package me.wizmxn.agent.factory;
+package me.yves.agent.factory;
 
 import jakarta.annotation.Nonnull;
-import me.wizmxn.Aircraft;
-import me.wizmxn.agent.Agent;
+import me.yves.Aircraft;
+import me.yves.agent.Agent;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 
@@ -18,13 +18,14 @@ public class ReflectionAgentFactory implements AgentFactory {
     @Nonnull
     @Override
     public List<Agent> getAgent(@Nonnull Aircraft aircraft) {
-        Set<Class<? extends Agent>> allClassesUsingClassLoader = findAllClassesUsingReflectionsLibrary("me.wizmxn.agent.impl");
+        Set<Class<? extends Agent>> allClassesUsingClassLoader = findAllClassesUsingReflectionsLibrary("me.yves.agent.impl");
         List<Agent> agentList = allClassesUsingClassLoader.stream()
                 .map(aClass -> {
                     try {
                         return (Agent) aClass.getConstructor(Aircraft.class).newInstance(aircraft);
                     } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
                              InvocationTargetException e) {
+                        LOGGER.severe("Couldn't load agents !");
                         throw new RuntimeException(e);
                         
                     }
