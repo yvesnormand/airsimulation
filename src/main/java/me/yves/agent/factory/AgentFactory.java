@@ -1,8 +1,8 @@
-package me.wizmxn.agent.factory;
+package me.yves.agent.factory;
 
 import jakarta.annotation.Nonnull;
-import me.wizmxn.Aircraft;
-import me.wizmxn.agent.Agent;
+import me.yves.Aircraft;
+import me.yves.agent.Agent;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package me.wizmxn;
+package me.yves;
 /* AirSimulation class
  *
  * TP of SE (version 2020)
@@ -6,8 +6,8 @@ package me.wizmxn;
  * AM
  */
 
-import me.wizmxn.agent.Agent;
-import me.wizmxn.agent.factory.AgentFactory;
+import me.yves.agent.Agent;
+import me.yves.agent.factory.AgentFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -17,7 +17,6 @@ public class AirSimulation {
     private final Aircraft aircraft;
     private final List<Agent> agents;
 
-    // Constructor
     public AirSimulation(AgentFactory agentFactory) {
         this.aircraft = Aircraft.classicalAircraft();  // standard model
         this.agents = agentFactory.getAgent(aircraft);

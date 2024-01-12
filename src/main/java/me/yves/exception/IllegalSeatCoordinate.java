@@ -1,5 +1,6 @@
-package me.wizmxn.exception;
+package me.yves.exception;
 
+@SuppressWarnings("unused")
 public class IllegalSeatCoordinate extends RuntimeException {
     private final int numberOfRows;
     private final int seatsPerRow;

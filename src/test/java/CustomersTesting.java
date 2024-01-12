@@ -1,4 +1,4 @@
-import me.wizmxn.Customer;
+import me.yves.Customer;
 
 class CustomersTesting {
 
@@ -17,8 +17,8 @@ class CustomersTesting {
         Customer c4 = Customer.copyFromCustomer(c2);
         System.out.println("Testing 'clone' and 'equals' : " + c2.equals(c4));
 //        c4.reset(); // commenting the reset customer because the original test was false
-//        //(resetting set all to 0 but creating a customer without passing args create a random one)
-//        System.out.println("Testing 'clearAllCustomer' : " + c4.equals(Customer.randomCustomer()));
+//        //(resetting to set all to 0 but creating a customer without passing args create a random one)
+//        System.out.println("Testing 'clearAllCustomer': " + c4.equals(Customer.randomCustomer()));
         System.out.println();
     }
 }

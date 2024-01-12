@@ -1,9 +1,10 @@
-package me.wizmxn.exception;
+package me.yves.exception;
 
-import me.wizmxn.Customer;
+import me.yves.Customer;
 
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class AircraftSeatNotEmptyException extends RuntimeException {
     private final int row;
     private final int col;

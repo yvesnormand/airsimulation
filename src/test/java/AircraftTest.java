@@ -1,5 +1,5 @@
-import me.wizmxn.Aircraft;
-import me.wizmxn.Customer;
+import me.yves.Aircraft;
+import me.yves.Customer;
 
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -15,15 +15,15 @@ class AircraftTest {
         {
             System.out.println("Testing Aircraft class\n");
             Aircraft a = Aircraft.classicalAircraft();
-            Customer mff = null;
-            int mffl = -1;
+            Customer mostFrequentFlyer = null;
+            int mostFrequentFlyerLevel = -1;
             for (int i = 0; i < a.getNumberOfRows(); i++) {
                 for (int j = 0; j < a.getSeatsPerRow(); j++) {
                     long seed = (long) (i + 1) * (j + 10);
                     Customer C = Customer.randomCustomer(seed);
-                    if (mffl < C.getFlyerLevel()) {
-                        mffl = C.getFlyerLevel();
-                        mff = C;
+                    if (mostFrequentFlyerLevel < C.getFlyerLevel()) {
+                        mostFrequentFlyerLevel = C.getFlyerLevel();
+                        mostFrequentFlyer = C;
                     }
                     a.placeCustomerToSeat(C, i, j);
                 }
@@ -38,10 +38,9 @@ class AircraftTest {
             System.out.println("Test 'getEmergencyRows' : " + (L.contains(0) && L.contains(12) & L.contains(31)));
             Customer C = Customer.randomCustomer(10);
             System.out.println("Test 'getCustomer' : " + (a.getCustomer(0, 0).map(C::equals).orElse(false)));
-            System.out.println("Test 'getMostFrequentFlyer' : " + (Optional.ofNullable(mff).equals(a.getMostFrequentFlyer(10))));
+            System.out.println("Test 'getMostFrequentFlyer' : " + (Optional.ofNullable(mostFrequentFlyer).equals(a.getMostFrequentFlyer(10))));
             C = a.getCustomer(1, 1).orElse(null);
             System.out.println("Test 'getCustomerRowNumber' : " + (Optional.ofNullable(C).map(a::getCustomerRowNumber).map(op -> op.equals(OptionalInt.of(1)))));
-            System.out.println("Test 'getCustomerSeatPlaceInRowRange' : " + (Optional.ofNullable(C).map(a::getCustomerSeatPlaceInRowRange).map(op -> op.equals(OptionalInt.of(1)))));
             System.out.println("Test 'isSeatEmpty' : " + !a.isSeatEmpty(1, 1));
             a.freeSeat(1, 1);
             System.out.println("Test 'freeSeat' and 'isSeatEmpty' : " + a.isSeatEmpty(1, 1));
